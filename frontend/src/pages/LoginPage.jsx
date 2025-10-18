@@ -1,3 +1,4 @@
+// src/pages/LoginPage.jsx
 import React, { useState } from "react";
 import { LogIn, Shield } from "lucide-react";
 import { Card } from "../components/Card";
@@ -12,6 +13,7 @@ export function LoginPage({ onLogin }) {
 
   const handleSubmit = () => {
     if (!canSubmit) return;
+    // We just pass the email. The user doesn't "exist" until their profile is saved.
     onLogin({ email });
   };
 
