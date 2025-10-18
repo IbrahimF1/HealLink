@@ -1,102 +1,216 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, MessageSquare } from 'lucide-react';
-import { Card } from '../components/Card';
-import { findMatch, getMentorChats } from '../api/apiClient';
+import React, { useMemo, useState } from "react";
+import {
+  Filter,
+  Building2,
+  Search,
+  CheckCircle2,
+  MessageCircle,
+  Sparkles,
+} from "lucide-react";
+import {
+  ALL_INTERESTS,
+  PROCEDURES,
+  LANGUAGES,
+  TIMEZONES,
+  AVAILABILITY,
+  STAGES,
+  HOSPITALS,
+  GENDERS,
+  MOCK_MENTORS,
+  pickTopMentors,
+} from "../constants_mvp";
+import Tag from "../components/Tag";
+import Card from "../components/Card";
+import Field from "../components/Field";
 
-const primaryBtn = "rounded-xl bg-black px-4 py-2 text-white dark:bg-white dark:text-black";
+/**
+ * MatchesPage — MVP version
+ * Props:
+ * - profile: user profile object
+ * - onChoose: function(mentor) called when user picks a mentor to chat
+ */
+export default function MatchesPage({ profile, onChoose }) {
+  const [gender, setGender] = useState("Any"); // Any | Male | Female | Non-binary
+  const [hospitals, setHospitals] = useState([]); // string[]
+  const [myHospitalOnly, setMyHospitalOnly] = useState(false);
 
-export function MatchesPage({ user, onMatchFound, onEnterChat }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [mentorChats, setMentorChats] = useState([]);
+  // Filter mentors based on selected filters
+  const filtered = useMemo(() => {
+    let arr = [...MOCK_MENTORS];
+    if (gender !== "Any")
+      arr = arr.filter(
+        (m) => (m.gender || "").toLowerCase() === gender.toLowerCase(),
+      );
+    if (hospitals.length)
+      arr = arr.filter((m) => hospitals.includes(m.hospital));
+    if (myHospitalOnly && profile.hospital)
+      arr = arr.filter((m) => m.hospital === profile.hospital);
+    return arr;
+  }, [gender, hospitals, myHospitalOnly, profile.hospital]);
 
-  // If the user is a mentor, fetch their connections periodically
-  useEffect(() => {
-    if (user.role === 'mentor') {
-      const fetchChats = async () => {
-        try {
-          const chats = await getMentorChats(user.id);
-          setMentorChats(chats);
-        } catch (err) {
-          console.error("Failed to fetch mentor chats", err);
-        }
-      };
-      
-      fetchChats(); // Fetch immediately
-      const interval = setInterval(fetchChats, 5000); // And then refresh every 5 seconds
-      
-      return () => clearInterval(interval); // Cleanup on unmount
-    }
-  }, [user.id, user.role]);
-
-  const handleFindMatch = async () => {
-    if (user.role === 'mentor') return;
-
-    setLoading(true);
-    setError("");
-    try {
-      const matchData = await findMatch(user.id);
-      onMatchFound(matchData);
-    } catch (err) {
-      setError("We couldn't find a suitable match right now. Please try again later or consider broadening your profile details.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Pick top mentors using matching logic
+  const topMentors = useMemo(
+    () => pickTopMentors(profile, filtered, 9),
+    [profile, filtered],
+  );
+  const noResults = topMentors.length === 0;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <Card className="text-center">
-        <div className="flex w-full justify-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-neutral-800">
-            <Search className="h-6 w-6"/>
-          </div>
+    <div className="mx-auto max-w-5xl space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xl font-semibold">
+          <Search className="h-5 w-5" /> Suggested mentors
         </div>
-        <h1 className="mt-4 text-xl font-semibold">
-          {user.role === 'mentee' ? "Ready to find your mentor?" : "Your Mentor Dashboard"}
-        </h1>
-        <p className="mt-2 text-gray-600 dark:text-neutral-400">
-          {user.role === 'mentee' 
-            ? "Click the button below to use our secure, AI-powered matching system. We'll analyze your profile to find the mentor who best fits your journey and interests."
-            : "Thank you for volunteering! Your profile is now visible to mentees seeking support."
-          }
-        </p>
-        {user.role === 'mentee' && (
-          <div className="mt-6">
-            <button onClick={handleFindMatch} disabled={loading} className={`${primaryBtn} w-full md:w-auto px-6 py-3 disabled:opacity-50`}>
-              {loading ? 'Searching...' : (
-                <span className="inline-flex items-center gap-2">
-                  <Sparkles className="h-5 w-5" /> Find My Best Match
-                </span>
-              )}
+        <div className="text-sm text-gray-600 dark:text-neutral-400">
+          Procedure: <b>{profile.procedure || "—"}</b> · Stage:{" "}
+          <b>{profile.stage || "—"}</b>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <Filter className="h-4 w-4" /> Filters
+        </div>
+        <div className="mt-3 grid gap-4 md:grid-cols-3">
+          <Field label="Mentor gender">
+            <div className="flex flex-wrap gap-2">
+              {["Any", ...GENDERS].map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setGender(g)}
+                  className={`rounded-xl px-3 py-1.5 text-sm border dark:border-neutral-700 ${
+                    gender === g
+                      ? "bg-black text-white dark:bg-white dark:text-black"
+                      : ""
+                  }`}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          </Field>
+          <Field label="Hospitals">
+            <div className="flex flex-wrap gap-2">
+              {HOSPITALS.map((h) => (
+                <label
+                  key={h}
+                  className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm dark:border-neutral-700"
+                >
+                  <input
+                    type="checkbox"
+                    checked={hospitals.includes(h)}
+                    onChange={(e) => {
+                      const set = new Set(hospitals);
+                      if (e.target.checked) set.add(h);
+                      else set.delete(h);
+                      setHospitals(Array.from(set));
+                    }}
+                  />
+                  {h}
+                </label>
+              ))}
+            </div>
+          </Field>
+          <Field label=" ">
+            <label className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm dark:border-neutral-700">
+              <input
+                type="checkbox"
+                checked={myHospitalOnly}
+                onChange={(e) => setMyHospitalOnly(e.target.checked)}
+              />
+              <span className="inline-flex items-center gap-1">
+                <Building2 className="h-4 w-4" /> My hospital only
+                {profile.hospital ? `: ${profile.hospital}` : ""}
+              </span>
+            </label>
+            <div className="mt-1 text-xs text-gray-500 dark:text-neutral-500">
+              Change your hospital in Profile.
+            </div>
+          </Field>
+        </div>
+        {(gender !== "Any" || hospitals.length > 0 || myHospitalOnly) && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {gender !== "Any" && (
+              <Tag
+                label={`Gender: ${gender}`}
+                onRemove={() => setGender("Any")}
+              />
+            )}
+            {myHospitalOnly && (
+              <Tag
+                label={`My hospital: ${profile.hospital || "—"}`}
+                onRemove={() => setMyHospitalOnly(false)}
+              />
+            )}
+            {hospitals.map((h) => (
+              <Tag
+                key={h}
+                label={h}
+                onRemove={() => setHospitals(hospitals.filter((x) => x !== h))}
+              />
+            ))}
+          </div>
+        )}
+        {(gender !== "Any" || hospitals.length > 0 || myHospitalOnly) && (
+          <div className="mt-3">
+            <button
+              onClick={() => {
+                setGender("Any");
+                setHospitals([]);
+                setMyHospitalOnly(false);
+              }}
+              className="rounded-xl border px-3 py-2 text-sm dark:border-neutral-700"
+            >
+              Clear all
             </button>
           </div>
         )}
-        {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
       </Card>
 
-      {user.role === 'mentor' && (
-        <Card className="text-left">
-          <h2 className="font-semibold text-lg flex items-center gap-2"><MessageSquare className="h-5 w-5"/> Your Connections</h2>
-          {mentorChats.length > 0 ? (
-            <div className="mt-4 space-y-3">
-              <p className="text-sm text-gray-500">Mentees who have matched with you are listed below. Click to chat.</p>
-              {mentorChats.map(mentee => (
-                <div key={mentee.id} className="flex items-center justify-between p-3 rounded-lg border dark:border-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-800/50">
-                  <div>
-                    <div className="font-medium">{mentee.name}</div>
-                    <div className="text-xs text-gray-500">{mentee.procedure}</div>
-                  </div>
-                  <button onClick={() => onEnterChat(mentee)} className={primaryBtn}>Chat</button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-3 text-sm text-gray-500">When a mentee connects with you, they will appear here. The list will refresh automatically.</p>
-          )}
+      {noResults && (
+        <Card>
+          <div className="text-gray-700 dark:text-neutral-300">
+            No mentors match your filters. Try switching gender to <b>Any</b>,
+            unchecking <b>My hospital only</b>, or picking different hospitals.
+          </div>
         </Card>
       )}
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {topMentors.map((m) => (
+          <Card key={m.id}>
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-lg font-semibold">{m.name}</div>
+                <div className="text-xs text-gray-500 dark:text-neutral-500">
+                  {m.gender} · {m.language} · {m.timezone}
+                </div>
+                <div className="mt-1 inline-flex items-center gap-1 text-xs text-gray-600 dark:text-neutral-400">
+                  <Building2 className="h-3.5 w-3.5" /> {m.hospital}
+                </div>
+              </div>
+              <div className="rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 flex items-center gap-1">
+                <CheckCircle2 className="h-4 w-4" /> {m.rating.toFixed(1)}
+              </div>
+            </div>
+            <div className="mt-2 text-sm text-gray-700 dark:text-neutral-300">
+              {m.intro}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {m.interests.map((i) => (
+                <Tag key={i} label={i} />
+              ))}
+            </div>
+            <button
+              onClick={() => onChoose(m)}
+              className="mt-4 w-full rounded-xl bg-black px-4 py-2 text-white dark:bg-white dark:text-black"
+            >
+              Start chatting
+            </button>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
