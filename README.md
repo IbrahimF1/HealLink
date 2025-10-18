@@ -1,84 +1,88 @@
-# HealLink: AI-Powered Peer Support for Medical Journeys
+# HealLink ✨ - AI-Powered Peer Support for Patients
 
-**HealLink is a prototype web application designed for a hackathon, connecting individuals on similar medical journeys through AI-powered, empathetic matching.**
+[![Hackathon Banner](https://user-images.githubusercontent.com/10988633/184132338-894c25c1-e5a9-4b13-a8a2-850d53c713b1.png)](#)
 
-The platform pairs mentees (patients preparing for or recovering from a procedure) with experienced mentors who have undergone the same experience. By leveraging vector similarity search and a large language model, HealLink aims to create meaningful, supportive connections that go beyond simple diagnosis matching.
+HealLink is a prototype web application designed to connect patients and their families with experienced mentors who have navigated similar health journeys. Using AI-powered semantic search and a real-time chat platform, HealLink provides empathetic, experience-based support to those facing medical procedures.
 
----
-
-## The Problem
-
-Navigating a serious medical procedure can be an isolating and frightening experience. While clinical support is crucial, the emotional and practical value of connecting with someone who has "been there" is immeasurable. Finding the right peer mentor—someone with a similar experience, personality, and communication style—is a challenge that technology is uniquely positioned to solve.
-
-## Our Solution
-
-HealLink is a full-stack application that provides:
-
--   **Empathetic Matching:** Instead of just matching on `procedure: "Lung Transplant"`, our backend uses sentence-transformer embeddings to analyze a user's self-introduction. It finds mentors whose personal stories and interests resonate with the mentee's, leading to a higher chance of a successful connection.
--   **AI-Powered Icebreakers:** To ease the anxiety of the first conversation, we use a locally-served LLM (Gemma:2b via Ollama) to generate a warm, personalized introduction that highlights shared interests and experiences.
--   **Real-Time, Private Chat:** Once matched, users can communicate securely through a real-time, two-way chat interface built with WebSockets.
--   **Simplified UX:** A clean, intuitive interface guides users through a seamless flow from sign-up to chat, ensuring the technology feels supportive, not obstructive.
-
-![HealLink Application Screenshot](https-placeholder-for-screenshot.com/heallink-demo.png) 
-*(Note: Replace the above URL with an actual screenshot of your running application.)*
+**[Live Demo Link](#)** (Add your demo link here if you deploy it) | **[Presentation Slides](#)** (Add your slides link here)
 
 ---
 
-## Features
+## 🚀 The Problem We're Solving
 
--   **Dual User Roles:** Users can sign up as either a **Mentor** (offering support) or a **Mentee** (seeking support).
--   **Smart Onboarding:** A combined login/signup flow checks if a user's email exists. Returning users are logged in directly, while new users are guided to a comprehensive profile creation page.
--   **Vector Similarity Search:** The backend uses `FAISS` to find the best mentor match based on the cosine similarity of their self-introduction embeddings.
--   **Local LLM Integration:** Uses **Ollama** to serve the `Gemma:2b` model locally, ensuring privacy and offline functionality for generating chat introductions.
--   **Live Two-Way Chat:** A persistent WebSocket connection allows mentors and mentees to chat in real-time.
--   **Mentor Dashboard:** Mentors have a dedicated view to see all the mentees who have connected with them.
--   **Dark Mode & Responsive UI:** Built with Tailwind CSS for a modern, accessible user experience.
+Facing a major medical procedure like an organ transplant can be an isolating and terrifying experience. While doctors provide medical guidance, the emotional and logistical challenges are often best understood by someone who has already been through it.
 
----
-
-## Tech Stack
-
-| Category      | Technology                                                                                                  | Purpose                                                     |
-| :------------ | :---------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------- |
-| **Frontend**  | **React (with Vite)**, **Tailwind CSS**, Axios, Lucide React                                                  | Fast, modern UI with a clean design system.                 |
-| **Backend**   | **FastAPI (Python)**, Uvicorn, SQLAlchemy                                                                   | High-performance, asynchronous API for all business logic.  |
-| **Database**  | **SQLite**                                                                                                  | Simple, file-based database for easy local deployment.      |
-| **AI / ML**   | **Ollama (serving Gemma:2b)**, **Sentence-Transformers**, **FAISS**                                           | Local LLM serving, text embeddings, and vector search.      |
-| **Real-Time** | **WebSockets**                                                                                              | Powering the live, two-way chat functionality.              |
+HealLink addresses this gap by:
+*   **Connecting Mentees** (patients about to undergo a procedure) with **Mentors** (volunteers who have recovered).
+*   Using AI to find the **most relevant match**, not just by procedure, but by personal experience, interests, and background.
+*   Providing a **safe, secure, and real-time chat** platform for one-on-one peer support.
+*   Leveraging local AI models to ensure the prototype is **fully functional offline** and respects user privacy.
 
 ---
 
-## Local Deployment Guide
+## 🛠️ Tech Stack & Features
 
-This project is designed to run entirely on your local machine. Follow these steps carefully to get started.
+This project is a full-stack application built with a modern, decoupled architecture.
+
+| Feature               | Technology/Library                                                              | Description                                                                                                                                                                    |
+| --------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 🌐 **Frontend**       | ![React](https://img.shields.io/badge/React-Vite-blue?logo=react)                 | A responsive and modern user interface built with Vite for a lightning-fast development experience. Styled with ![Tailwind CSS](https://img.shields.io/badge/-TailwindCSS-38B2AC?logo=tailwind-css&logoColor=white). |
+| ⚙️ **Backend**        | ![FastAPI](https://img.shields.io/badge/FastAPI-Python-green?logo=fastapi)        | A high-performance Python API server that handles all business logic, data, and real-time communication.                                                                     |
+| 🧠 **AI Matching**    | ![Hugging Face](https://img.shields.io/badge/HF-SentenceTransformers-yellow)      | User introductions are converted into vector embeddings using the `all-MiniLM-L6-v2` model. This allows for semantic search based on the *meaning* of a user's story.      |
+| 💬 **AI Introduction**| ![Ollama](https://img.shields.io/badge/Ollama-Gemma_2B-lightgrey)                 | Google's `gemma:2b` model is served locally via Ollama to generate warm, personalized introductions between a matched mentor and mentee, helping to break the ice.               |
+| ⚡ **Vector Search**   | ![FAISS](https://img.shields.io/badge/FAISS-Facebook_AI-blue)                     | An ultra-fast vector similarity search library from Meta AI. It finds the mentor with the closest cosine similarity to the mentee in milliseconds.                               |
+| 📨 **Real-Time Chat** | ![WebSockets](https://img.shields.io/badge/-WebSockets-red)                       | FastAPI's native WebSocket support provides a persistent, two-way connection for instant messaging between users.                                                            |
+| 🗄️ **Database**      | ![SQLite](https://img.shields.io/badge/SQLite-SQL-blue?logo=sqlite&logoColor=white) | A lightweight, file-based SQL database for storing user profiles and information. Perfect for rapid, dependency-free local deployment.                                       |
+
+---
+
+## 🎬 Demo Video
+
+*(Embed or link to a short video showcasing the application flow here. This is highly recommended for hackathons!)*
+
+[<img src="https://i.ytimg.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg" width="100%">](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+
+---
+
+## 🔧 Running the Project Locally
+
+You can get the entire HealLink platform running on your machine in just a few steps.
 
 ### Prerequisites
 
-1.  **Python 3.10+**: Make sure Python and `pip` are installed.
-2.  **Node.js v18+**: Make sure Node.js and `npm` are installed.
-3.  **Ollama**: Download and install the Ollama app from [ollama.com](https://ollama.com/).
+1.  **Node.js**: [Download & Install Node.js](https://nodejs.org/) (LTS version recommended).
+2.  **Python**: [Download & Install Python 3.10+](https://www.python.org/) (make sure to check "Add Python to PATH").
+3.  **Ollama**: [Download & Install Ollama](https://ollama.com/). This will serve our local AI model.
 
-### Step 1: Set Up the Ollama AI Server
+### Step 1: Clone the Repository
 
-First, we need to download the Gemma model and get the Ollama server running.
+```bash
+git clone https://github.com/your-username/heallink-project.git
+cd heallink-project
+```
 
-1.  **Pull the Gemma Model:** Open a terminal and run:
+### Step 2: Set Up the AI Model (Ollama) 🤖
+
+This step downloads the Gemma model so our backend can use it.
+
+1.  Open a new terminal.
+2.  Pull the Gemma 2B model:
     ```bash
     ollama pull gemma:2b
     ```
-2.  **Run the Model:** Start the server and load the model into memory.
+3.  Start the Ollama server and load the model (this will also confirm it works):
     ```bash
     ollama run gemma:2b
     ```
-    You will see a chat prompt. You can now leave this terminal running in the background.
+    **➡️ Keep this terminal running!** This is your dedicated AI server.
 
-### Step 2: Set Up the FastAPI Backend
+### Step 3: Set Up and Run the Backend ⚙️
 
-1.  **Navigate to the Backend Directory:**
+1.  Open a **second terminal** and navigate to the `backend` directory:
     ```bash
     cd backend
     ```
-2.  **Create and Activate a Virtual Environment:**
+2.  Create a Python virtual environment and activate it:
     ```bash
     # Create the environment
     python -m venv .venv
@@ -87,56 +91,54 @@ First, we need to download the Gemma model and get the Ollama server running.
     .\.venv\Scripts\activate
 
     # Activate it (macOS/Linux)
-    source .venv/bin/activate
+    # source .venv/bin/activate
     ```
-3.  **Install Python Dependencies:**
+3.  Install all the required Python packages:
     ```bash
     pip install -r requirements.txt
     ```
-4.  **Start the Backend Server:**
+4.  Start the FastAPI server:
     ```bash
     uvicorn main:app --reload
     ```
-    The backend should now be running at `http://127.0.0.1:8000`.
+    You should see `Uvicorn running on http://127.0.0.1:8000`.
 
-### Step 3: Set Up the React Frontend
+    **➡️ Keep this terminal running!** This is your API server.
 
-1.  **Open a new terminal.**
-2.  **Navigate to the Frontend Directory:**
+### Step 4: Set Up and Run the Frontend 🌐
+
+1.  Open a **third terminal** and navigate to the `frontend` directory:
     ```bash
     cd frontend
     ```
-3.  **Install Node.js Dependencies:**
+2.  Install the Node.js dependencies:
     ```bash
     npm install
     ```
-4.  **Start the Frontend Development Server:**
+3.  Start the Vite development server:
     ```bash
     npm run dev
     ```
-    The frontend should now be running and will automatically open in your browser at `http://localhost:5173`.
+    Your browser should automatically open to `http://localhost:5173` (or a similar address).
 
-### Step 4: Using the Application
+    **➡️ Keep this terminal running!** This is your web app server.
 
-You're all set! You now have three processes running: Ollama, the FastAPI backend, and the Vite frontend.
+### You're all set! 🎉
 
-To test the full user flow:
-1.  **Create a Mentor:** Open your browser to `http://localhost:5173`. Sign up with a mentor email (e.g., `mentor@example.com`) and fill out the profile as a **Mentor**.
-2.  **Create a Mentee:** Open an incognito/private browser window. Navigate to `http://localhost:5173`. Sign up with a different email (e.g., `mentee@example.com`) and fill out the profile as a **Mentee**.
-3.  **Find a Match:** As the mentee, click the "Find My Best Match" button.
-4.  **Start Chatting:** You will be taken to a chat room with an AI-generated introduction. Go back to the mentor's browser window, refresh the page, and you will see the mentee in your connection list. Click "Chat" to join the conversation.
+You now have three terminals running the complete application stack. You can open `http://localhost:5173` in a normal browser window to create a mentor, and an incognito window to create a mentee and see the real-time matching and chat in action.
 
 ---
 
-## Future Improvements
+## 🏆 Hackathon Goals & Future Work
 
-This hackathon prototype sets the foundation for a powerful platform. Future enhancements could include:
--   **Persistent Chat History:** Store chat messages in the database so conversations are not lost on logout.
--   **Real-time Notifications:** Implement a notification system to alert a mentor via email or push notification when a new mentee connects.
--   **Expanded Mentor Vetting:** Create an admin interface for vetting and approving mentor applications.
--   **Production Deployment:** Containerize the application with Docker and deploy it to a cloud platform.
--   **Advanced Filtering:** Allow mentees to filter potential mentors by availability, timezone, or other criteria in addition to the AI matching.
--   **Feedback System:** Let mentees and mentors rate their experience to improve the matching algorithm over time.
+*   [x] **Core Matching Logic**: Successfully implemented semantic search to match users.
+*   [x] **Real-Time Communication**: Built a functional WebSocket chat.
+*   [x] **Local-First AI**: Integrated Ollama for privacy-focused, offline-capable AI.
+*   [ ] **Persist Chat History**: Store chat messages in the database so they can be retrieved later.
+*   [ ] **Notifications**: Implement a system to notify a mentor when a new mentee connects.
+*   [ ] **Group Chats**: Create support groups for specific procedures.
+*   [ ] **Deployment**: Dockerize the application for easy deployment to cloud services.
 
 ---
-**Built with ❤️ for the community.**
+
+Built with ❤️ by [Your Name/Team Name].
