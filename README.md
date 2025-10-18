@@ -66,11 +66,11 @@ This step downloads the Gemma model so our backend can use it.
 1.  Open a new terminal.
 2.  Pull the Gemma 2B model:
     ```bash
-    ollama pull gemma:2b
+    ollama pull gemma3n:e2b
     ```
 3.  Start the Ollama server and load the model (this will also confirm it works):
     ```bash
-    ollama run gemma:2b
+    ollama run gemma3n:e2b
     ```
     **➡️ Keep this terminal running!** This is your dedicated AI server.
 
