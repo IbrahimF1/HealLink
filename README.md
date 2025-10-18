@@ -38,7 +38,7 @@ This project is a full-stack application built with a modern, decoupled architec
 
 ## 🎬 Demo Video
 
-<iframe width="560" height="315" src="https://youtu.be/vybook6hBqY" frameborder="0" allowfullscreen></iframe>
+[<img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pragmaticmom.com%2Fwp-content%2Fuploads%2F2017%2F01%2Fblog_community.png&f=1&nofb=1&ipt=9b849b75ae9edd675aa5a2956a57b9f39fa23d1a2a364978ff76e76f54254f95" width="100%">](https://youtu.be/vybook6hBqY)
 
 ---
 
