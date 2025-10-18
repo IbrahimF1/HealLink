@@ -28,4 +28,10 @@ export const findMatch = async (userId) => {
   return response.data;
 };
 
+export const getMentorChats = async (mentorId) => {
+  const response = await apiClient.get(`/mentors/${mentorId}/chats`);
+  return response.data;
+};
+
+
 export default apiClient;
