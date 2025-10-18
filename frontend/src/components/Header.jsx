@@ -1,7 +1,7 @@
 import React from 'react';
-import { LogOut, Sun, Moon } from 'lucide-react';
+import { LogOut, Sun, Moon, Settings } from 'lucide-react';
 
-export const Header = ({ user, onLogout, theme, toggleTheme }) => {
+export const Header = ({ user, onLogout, theme, toggleTheme, navigate }) => {
   return (
     <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur dark:bg-neutral-950/70 dark:border-neutral-800">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
@@ -14,7 +14,15 @@ export const Header = ({ user, onLogout, theme, toggleTheme }) => {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           {user ? (
-            <button onClick={onLogout} className="inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm dark:border-neutral-700"><LogOut className="h-4 w-4" /> {user.email}</button>
+            <>
+              <button onClick={() => navigate('settings')} className="rounded-xl border p-2 text-sm dark:border-neutral-700" aria-label="Settings">
+                <Settings className="h-4 w-4" />
+              </button>
+              <button onClick={onLogout} className="inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm dark:border-neutral-700">
+                <LogOut className="h-4 w-4" /> 
+                <span className="hidden sm:inline">{user.email}</span>
+              </button>
+            </>
           ) : (
             <span className="text-sm text-gray-500 dark:text-neutral-500">Not signed in</span>
           )}

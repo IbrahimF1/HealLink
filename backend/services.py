@@ -3,22 +3,15 @@
 from sqlalchemy.orm import Session
 from sentence_transformers import SentenceTransformer
 import numpy as np
-import requests # <-- ADDED for Ollama
-import json     # <-- ADDED for Ollama
+import requests
+import json
 
 from database import User, get_faiss_index, get_user_id_map, update_faiss_index
 from models import UserProfile
 
-# --- Model Initialization ---
-# The sentence-transformer model for embeddings remains unchanged.
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-# --- REMOVED ---
-# We no longer need to load the Gemma tokenizer or model in Python.
-# tokenizer = AutoTokenizer.from_pretrained("google/gemma-2b-it")
-# gemma_model = AutoModelForCausalLM.from_pretrained(...)
-# ---
-
+# REFACTORED: This function now ONLY CREATES
 def create_user_profile(db: Session, profile: UserProfile):
     embedding = embedding_model.encode(profile.intro, convert_to_tensor=False).tolist()
     
@@ -39,11 +32,45 @@ def create_user_profile(db: Session, profile: UserProfile):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-
-    if db_user.role == "mentor":
-        update_faiss_index(db)
-
+    
+    update_faiss_index(db)
     return db_user
+
+# NEW: Service for UPDATING a profile
+def update_user_profile(db: Session, user_id: int, profile_update: UserProfile):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        return None
+
+    db_user.name = profile_update.name
+    db_user.role = profile_update.role
+    db_user.procedure = profile_update.procedure
+    db_user.stage = profile_update.stage
+    db_user.language = profile_update.language
+    db_user.timezone = profile_update.timezone
+    db_user.hospital = profile_update.hospital
+    db_user.interests = profile_update.interests
+    db_user.availability = profile_update.availability
+    db_user.intro = profile_update.intro
+    db_user.embedding = embedding_model.encode(profile_update.intro, convert_to_tensor=False).tolist()
+
+    db.commit()
+    db.refresh(db_user)
+    
+    update_faiss_index(db)
+    return db_user
+
+# NEW: Service for DELETING a profile
+def delete_user_profile(db: Session, user_id: int):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if db_user:
+        db.delete(db_user)
+        db.commit()
+        update_faiss_index(db)
+        return True
+    return False
+
+# --- (No changes below this line) ---
 
 def find_best_match(db: Session, mentee_id: int):
     mentee = db.query(User).filter(User.id == mentee_id).first()
@@ -70,8 +97,6 @@ def find_best_match(db: Session, mentee_id: int):
     mentor = db.query(User).filter(User.id == mentor_id).first()
     return mentor
 
-# --- REWRITTEN FUNCTION ---
-# This function now calls the Ollama API instead of running the model locally.
 def generate_introduction(mentee: User, mentor: User):
     shared_interests = list(set(mentee.interests) & set(mentor.interests))
     
@@ -99,25 +124,19 @@ def generate_introduction(mentee: User, mentor: User):
     """
 
     ollama_api_url = "http://localhost:11434/api/generate"
-    
     payload = {
         "model": "gemma3n:e2b",
         "prompt": prompt,
-        "stream": False  # We want the full response at once
+        "stream": False
     }
-
     try:
         response = requests.post(ollama_api_url, data=json.dumps(payload))
-        response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
-
-        # The actual generated text is in the 'response' key of the JSON
+        response.raise_for_status()
         response_text = response.json().get('response', '')
         return response_text.strip()
-
-    except requests.exceptions.ConnectionError as e:
+    except requests.exceptions.ConnectionError:
         print("Error: Could not connect to Ollama server.")
-        print("Please ensure the Ollama application is running.")
-        return "Sorry, the AI introduction service is currently unavailable. Please try again later."
+        return "Sorry, the AI introduction service is currently unavailable."
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return "Sorry, an error occurred while generating the introduction."

@@ -3,10 +3,10 @@ import { LoginPage } from './pages/LoginPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { MatchesPage } from './pages/MatchesPage';
 import { ChatPage } from './pages/ChatPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { Header } from './components/Header';
-import { getUserByEmail } from './api/apiClient';
+import { getUserByEmail, createUser } from './api/apiClient';
 
-// Helper functions for localStorage
 const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 const load = (k, d) => {
   try {
@@ -23,7 +23,6 @@ export default function App() {
   const [chatState, setChatState] = useState(load('chatState', null));
   const [theme, setTheme] = useState(load('theme', 'light'));
 
-  // Effects to save state to localStorage whenever it changes
   useEffect(() => { save('user', user); }, [user]);
   useEffect(() => { save('route', route); }, [route]);
   useEffect(() => { save('chatState', chatState); }, [chatState]);
@@ -32,28 +31,36 @@ export default function App() {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
-  // --- State Transition Handlers ---
   const handleLogin = async (email) => {
-    const existingUser = await getUserByEmail(email);
-
-    if (existingUser) {
-      // User exists, log them in directly
-      setUser(existingUser);
-      setRoute('matches'); // Go straight to the matches/dashboard page
-    } else {
-      // User does not exist, start the signup process
-      setUser({ email }); // Store the email to pre-fill the profile form
-      setRoute('profile');
+    try {
+      const existingUser = await getUserByEmail(email);
+      if (existingUser) {
+        setUser(existingUser);
+        setRoute('matches');
+      } else {
+        setUser({ email });
+        setRoute('profile');
+      }
+    } catch (error) {
+      console.error("Login check failed:", error);
+      // Optionally show an error to the user on the login page
     }
   };
 
-  const handleProfileComplete = (profileData) => {
-    setUser(profileData);
+  // --- THIS IS THE FIX ---
+  // This function no longer makes an API call. It simply takes the
+  // already created user from the ProfilePage and updates the state.
+  const handleProfileComplete = (createdUser) => {
+    setUser(createdUser);
     setRoute('matches');
+  };
+  // -----------------------
+  
+  const handleProfileUpdate = (updatedUser) => {
+    setUser(updatedUser);
   };
   
   const handleMatchFound = (matchData) => {
-    // For a mentee, the "other user" is the mentor.
     setChatState({
       otherUser: matchData.mentor,
       introduction: matchData.introduction
@@ -62,7 +69,6 @@ export default function App() {
   };
 
   const handleEnterChat = (mentee) => {
-    // For a mentor, the "other user" is the mentee.
     setChatState({
       otherUser: mentee,
       introduction: `This is the start of your conversation with ${mentee.name}.`
@@ -78,18 +84,20 @@ export default function App() {
   };
   
   const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
+  const navigate = (newRoute) => setRoute(newRoute);
 
-  // --- Simple Router Logic ---
   const renderPage = () => {
     if (user && !user.id && route !== 'profile') {
         return <ProfilePage user={user} onProfileComplete={handleProfileComplete} />
     }
-      
+    
     switch (route) {
       case 'profile':
         return user ? <ProfilePage user={user} onProfileComplete={handleProfileComplete} /> : <LoginPage onLogin={handleLogin} />;
+      case 'settings':
+        return user ? <SettingsPage user={user} onProfileUpdate={handleProfileUpdate} onLogout={handleLogout} /> : <LoginPage onLogin={handleLogin} />;
       case 'matches':
-        return user ? <MatchesPage user={user} onMatchFound={handleMatchFound} onEnterChat={handleEnterChat} /> : <LoginPage onLogin={handleLogin} />;
+        return user ? <MatchesPage user={user} onMatchFound={handleMatchFound} onEnterChat={handleEnterChat} navigate={navigate} /> : <LoginPage onLogin={handleLogin} />;
       case 'chat':
         return user && chatState ? (
           <ChatPage 
@@ -98,7 +106,7 @@ export default function App() {
             introduction={chatState.introduction} 
             onExit={() => { setChatState(null); setRoute('matches'); }} 
           />
-        ) : <MatchesPage user={user} onMatchFound={handleMatchFound} onEnterChat={handleEnterChat} />;
+        ) : <MatchesPage user={user} onMatchFound={handleMatchFound} onEnterChat={handleEnterChat} navigate={navigate} />;
       case 'login':
       default:
         return <LoginPage onLogin={handleLogin} />;
@@ -107,7 +115,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 dark:bg-neutral-950 dark:text-neutral-200">
-      <Header user={user} onLogout={handleLogout} theme={theme} toggleTheme={toggleTheme} />
+      <Header user={user} onLogout={handleLogout} theme={theme} toggleTheme={toggleTheme} navigate={navigate} />
       <main className="mx-auto max-w-6xl px-4 py-8">
         {renderPage()}
       </main>

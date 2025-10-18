@@ -4,7 +4,7 @@ import { UserCircle, Heart, ArrowRight } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Field } from '../components/Field';
 import { Tag } from '../components/Tag';
-import { createUser } from '../api/apiClient';
+import { createUser, updateUser } from '../api/apiClient';
 import { PROCEDURES, LANGUAGES, STAGES, HOSPITALS, ALL_INTERESTS } from '../constants';
 
 const inputClass = "w-full rounded-xl border px-3 py-2 dark:bg-neutral-950 dark:border-neutral-700 dark:text-neutral-200 placeholder:dark:text-neutral-500";
