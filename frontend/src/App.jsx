@@ -19,13 +19,13 @@ const load = (k, d) => {
 export default function App() {
   const [user, setUser] = useState(load('user', null));
   const [route, setRoute] = useState(load('route', 'login'));
-  const [match, setMatch] = useState(load('match', null));
+  const [chatState, setChatState] = useState(load('chatState', null));
   const [theme, setTheme] = useState(load('theme', 'light'));
 
   // Effects to save state to localStorage whenever it changes
   useEffect(() => { save('user', user); }, [user]);
   useEffect(() => { save('route', route); }, [route]);
-  useEffect(() => { save('match', match); }, [match]);
+  useEffect(() => { save('chatState', chatState); }, [chatState]);
   useEffect(() => {
     save('theme', theme);
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -43,14 +43,27 @@ export default function App() {
   };
   
   const handleMatchFound = (matchData) => {
-      setMatch(matchData);
-      setRoute('chat');
+    // For a mentee, the "other user" is the mentor.
+    setChatState({
+      otherUser: matchData.mentor,
+      introduction: matchData.introduction
+    });
+    setRoute('chat');
+  };
+
+  const handleEnterChat = (mentee) => {
+    // For a mentor, the "other user" is the mentee.
+    setChatState({
+      otherUser: mentee,
+      introduction: `This is the start of your conversation with ${mentee.name}.`
+    });
+    setRoute('chat');
   };
 
   const handleLogout = () => {
     setUser(null);
     setRoute('login');
-    setMatch(null);
+    setChatState(null);
     localStorage.clear();
   };
   
@@ -58,7 +71,6 @@ export default function App() {
 
   // --- Simple Router Logic ---
   const renderPage = () => {
-    // If user object exists but has no ID, they MUST complete their profile.
     if (user && !user.id && route !== 'profile') {
         return <ProfilePage user={user} onProfileComplete={handleProfileComplete} />
     }
@@ -67,10 +79,16 @@ export default function App() {
       case 'profile':
         return user ? <ProfilePage user={user} onProfileComplete={handleProfileComplete} /> : <LoginPage onLogin={handleLogin} />;
       case 'matches':
-        return user ? <MatchesPage user={user} onMatchFound={handleMatchFound} /> : <LoginPage onLogin={handleLogin} />;
+        return user ? <MatchesPage user={user} onMatchFound={handleMatchFound} onEnterChat={handleEnterChat} /> : <LoginPage onLogin={handleLogin} />;
       case 'chat':
-        // If a match exists, show chat. Otherwise, redirect to matches page.
-        return match ? <ChatPage match={match} onExit={() => setRoute('matches')} /> : <MatchesPage user={user} onMatchFound={handleMatchFound} />;
+        return user && chatState ? (
+          <ChatPage 
+            currentUser={user} 
+            otherUser={chatState.otherUser} 
+            introduction={chatState.introduction} 
+            onExit={() => { setChatState(null); setRoute('matches'); }} 
+          />
+        ) : <MatchesPage user={user} onMatchFound={handleMatchFound} onEnterChat={handleEnterChat} />;
       case 'login':
       default:
         return <LoginPage onLogin={handleLogin} />;
