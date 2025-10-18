@@ -38,7 +38,7 @@ This project is a full-stack application built with a modern, decoupled architec
 
 ## 🎬 Demo Video
 
-[<img src="https://i.ytimg.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg" width="100%">](https://youtu.be/vybook6hBqY)
+<iframe width="560" height="315" src="https://youtu.be/vybook6hBqY" frameborder="0" allowfullscreen></iframe>
 
 ---
 
