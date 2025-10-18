@@ -96,6 +96,13 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 # In a real app, this would be a database table.
 mentor_connections = {}
 
+@app.get("/users/by-email/{email}", response_model=UserProfileResponse)
+def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
 @app.post("/match/", response_model=MatchResponse)
 def get_match(request: MatchRequest, db: Session = Depends(get_db)):
     mentee = db.query(User).filter(User.id == request.user_id).first()
