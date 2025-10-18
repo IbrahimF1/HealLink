@@ -38,9 +38,7 @@ This project is a full-stack application built with a modern, decoupled architec
 
 ## 🎬 Demo Video
 
-*(Embed or link to a short video showcasing the application flow here. This is highly recommended for hackathons!)*
-
-[<img src="https://i.ytimg.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg" width="100%">](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+[<img src="https://i.ytimg.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg" width="100%">](https://youtu.be/vybook6hBqY)
 
 ---
 
