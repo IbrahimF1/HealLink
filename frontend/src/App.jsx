@@ -4,6 +4,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { MatchesPage } from './pages/MatchesPage';
 import { ChatPage } from './pages/ChatPage';
 import { Header } from './components/Header';
+import { getUserByEmail } from './api/apiClient';
 
 // Helper functions for localStorage
 const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
@@ -32,9 +33,18 @@ export default function App() {
   }, [theme]);
 
   // --- State Transition Handlers ---
-  const handleLogin = (userData) => {
-    setUser(userData);
-    setRoute('profile');
+  const handleLogin = async (email) => {
+    const existingUser = await getUserByEmail(email);
+
+    if (existingUser) {
+      // User exists, log them in directly
+      setUser(existingUser);
+      setRoute('matches'); // Go straight to the matches/dashboard page
+    } else {
+      // User does not exist, start the signup process
+      setUser({ email }); // Store the email to pre-fill the profile form
+      setRoute('profile');
+    }
   };
 
   const handleProfileComplete = (profileData) => {
