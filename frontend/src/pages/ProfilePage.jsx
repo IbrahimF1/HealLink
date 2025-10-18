@@ -1,3 +1,4 @@
+// src/pages/ProfilePage.jsx
 import React, { useState } from 'react';
 import { UserCircle, Heart, ArrowRight } from 'lucide-react';
 import { Card } from '../components/Card';
