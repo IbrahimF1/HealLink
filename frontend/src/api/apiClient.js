@@ -9,6 +9,25 @@ const apiClient = axios.create({
 });
 
 /**
+ * Fetches a user profile by email.
+ * @param {string} email - The user's email.
+ * @returns {Promise<Object|null>} The user profile, or null if not found.
+ */
+export const getUserByEmail = async (email) => {
+  try {
+    const response = await apiClient.get(`/users/by-email/${email}`);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      // It's not an error if the user doesn't exist, it's expected behavior for a new user.
+      return null;
+    }
+    // For other errors (like server down), we should still throw them.
+    throw error;
+  }
+};
+
+/**
  * Creates a user profile.
  * @param {Object} profileData - The user's profile data.
  * @returns {Promise<Object>} The created user profile from the backend.
