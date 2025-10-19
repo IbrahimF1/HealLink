@@ -1,0 +1,12 @@
+fastapi[all]
+uvicorn
+sqlalchemy
+pydantic
+sentence-transformers
+torch
+faiss-cpu
+transformers
+accelerate
+bitsandbytes
+tf-keras
+requests
