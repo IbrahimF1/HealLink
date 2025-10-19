@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
+from typing import Optional
 import json
 
 from database import get_db, update_faiss_index, SessionLocal
@@ -14,8 +15,17 @@ app = FastAPI(title="HealLink API")
 
 # --- CORS Configuration ---
 origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
+    "http://localhost:5173",  # Vite default
+    "http://localhost:5174",  # Vite alternative
+    "http://localhost:5175",  # Add more ports
+    "http://localhost:5176",  # that Vite might use
+    "http://localhost:5177",  # Your current frontend port
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
+    "http://127.0.0.1:5175",
+    "http://127.0.0.1:5176",
+    "http://127.0.0.1:5177",
+    "http://localhost:3000",  # React default
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -73,10 +83,36 @@ mentor_connections = {}
 
 @app.post("/users/", response_model=UserProfileResponse)
 def create_user(profile: UserProfile, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == profile.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return services.create_user_profile(db, profile)
+    try:
+        print(f"Creating/updating user with data: {profile}")  # Debug log
+        
+        # Validate all required fields are present and non-empty
+        required_fields = ['email', 'name', 'role', 'procedure', 'stage', 'language', 'timezone', 'hospital', 'intro']
+        missing_fields = [field for field in required_fields if not getattr(profile, field)]
+        if missing_fields:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Missing required fields: {', '.join(missing_fields)}"
+            )
+        
+        # Check if email exists
+        db_user = db.query(User).filter(User.email == profile.email).first()
+        if db_user:
+            # Update existing user
+            updated_user = services.update_user_profile(db, db_user.id, profile)
+            print(f"Successfully updated user: {updated_user.email}")  # Debug log
+            return updated_user
+        
+        # Create new user
+        new_user = services.create_user_profile(db, profile)
+        print(f"Successfully created user: {new_user.email}")  # Debug log
+        return new_user
+    except HTTPException as he:
+        print(f"HTTP error creating/updating user: {str(he.detail)}")  # Debug log
+        raise
+    except Exception as e:
+        print(f"Error creating/updating user: {str(e)}")  # Debug log
+        raise HTTPException(status_code=400, detail=f"Error creating/updating user: {str(e)}")
 
 @app.put("/users/{user_id}", response_model=UserProfileResponse)
 def update_user(user_id: int, profile: UserProfile, db: Session = Depends(get_db)):
@@ -95,6 +131,33 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
             mentee for mentee in mentor_connections[mentor_id] if mentee['id'] != user_id
         ]
     return {"ok": True}
+
+@app.get("/users/by-email/{email}", response_model=Optional[UserProfileResponse])
+async def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    """
+    Check if a user exists by email. Returns:
+    - The user object if found (200 OK)
+    - None if not found (200 OK with null)
+    This lets the frontend distinguish between new and existing users.
+    """
+    try:
+        print(f"Looking up user with email: {email}")  # Debug log
+        db_user = db.query(User).filter(User.email == email).first()
+        
+        if db_user:
+            print(f"Found existing user: {db_user.email}")  # Debug log
+            return db_user
+        else:
+            print(f"No user found with email: {email}")  # Debug log
+            return None
+            
+    except Exception as e:
+        print(f"Database error in get_user_by_email: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
+    db_user = db.query(User).filter(User.email == email).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
 
 @app.get("/users/{user_id}", response_model=UserProfileResponse)
 def get_user(user_id: int, db: Session = Depends(get_db)):
@@ -143,3 +206,8 @@ def get_mentor_chats(mentor_id: int):
     connections = mentor_connections.get(mentor_id, [])
     return [UserProfileResponse.model_validate(c) for c in connections]
 # -----------------------------------------
+
+@app.get("/users/", response_model=list[UserProfileResponse])
+def get_all_users(db: Session = Depends(get_db)):
+    users = db.query(User).all()
+    return [UserProfileResponse.model_validate(u, from_attributes=True) for u in users]

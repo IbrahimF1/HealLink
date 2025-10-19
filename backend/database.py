@@ -16,6 +16,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     name = Column(String)
+    age = Column(Integer, nullable=True)  # Make nullable for existing records
+    gender = Column(String, nullable=True)  # Make nullable for existing records
     role = Column(String)
     procedure = Column(String)
     stage = Column(String)
@@ -27,6 +29,16 @@ class User(Base):
     intro = Column(Text)
     embedding = Column(JSON)
 
+    # This will ensure the table is dropped and recreated
+    __table_args__ = {'extend_existing': True}
+
+# Drop all tables and recreate them
+def reset_database():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    print("Database reset complete - all tables dropped and recreated")
+
+# Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
 
 def get_db():

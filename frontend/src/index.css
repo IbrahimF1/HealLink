@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* App background (behind gradient canvas) */
+html {
+  background-color: #f8fafc; /* slate-50 */
+}
+html.dark {
+  background-color: #0a0a0a; /* near-black to match dark theme */
+}

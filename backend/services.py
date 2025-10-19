@@ -18,6 +18,8 @@ def create_user_profile(db: Session, profile: UserProfile):
     db_user = User(
         email=profile.email,
         name=profile.name,
+        age=profile.age,
+        gender=profile.gender,
         role=profile.role,
         procedure=profile.procedure,
         stage=profile.stage,
