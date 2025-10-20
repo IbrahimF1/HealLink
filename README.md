@@ -1,10 +1,10 @@
-# HealLink ✨ - AI-Powered Peer Support for Patients
+# HealLink 🫶 - AI-Powered Peer Support for Patients
 
 [![Hackathon Banner](https://d112y698adiu2z.cloudfront.net/photos/production/challenge_photos/003/812/548/datas/full_width.png)](#)
 
 HealLink is a prototype web application designed to connect patients and their families with experienced mentors who have navigated similar health journeys. Using AI-powered semantic search and a real-time chat platform, HealLink provides empathetic, experience-based support to those facing medical procedures.
 
-**[Live Demo Link](#)** (Add your demo link here if you deploy it) | **[Presentation Slides](#)** (Add your slides link here)
+**[Presentation Slides](https://www.canva.com/design/DAG2MYAfQV4/lr4jgLSW14JwGvymrOByTQ/edit?utm_content=DAG2MYAfQV4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)**
 
 ---
 
@@ -139,4 +139,4 @@ You now have three terminals running the complete application stack. You can ope
 
 ---
 
-Built with ❤️ by [Your Name/Team Name].
+Built with ❤️ by Ibrahim Faruquee, Ancel Ramdass, John M. Pozo.
