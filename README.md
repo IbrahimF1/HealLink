@@ -139,4 +139,4 @@ You now have three terminals running the complete application stack. You can ope
 
 ---
 
-Built with ❤️ by Ibrahim Faruquee, Ancel Ramdass, John M. Pozo.
+Built with ❤️ by [Ibrahim Faruquee](https://www.linkedin.com/in/ibrahim-f1/), [Ancel Ramdass](https://www.linkedin.com/in/ancel-ramdass/), [John M. Pozo](https://www.linkedin.com/in/john-m-pozo-893740188/).
