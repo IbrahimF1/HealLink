@@ -1,6 +1,6 @@
 # HealLink ✨ - AI-Powered Peer Support for Patients
 
-[![Hackathon Banner](https://user-images.githubusercontent.com/10988633/184132338-894c25c1-e5a9-4b13-a8a2-850d53c713b1.png)](#)
+[![Hackathon Banner](https://d112y698adiu2z.cloudfront.net/photos/production/challenge_photos/003/812/548/datas/full_width.png)](#)
 
 HealLink is a prototype web application designed to connect patients and their families with experienced mentors who have navigated similar health journeys. Using AI-powered semantic search and a real-time chat platform, HealLink provides empathetic, experience-based support to those facing medical procedures.
 
